@@ -25,6 +25,16 @@ public class HttpSecurity extends AbstractConfiguredSecurityBuilder<DefaultSecur
         return new DefaultSecurityFilterChain(sorted);
     }
 
+    @SuppressWarnings("unchecked")
+    private <C extends SecurityConfigurer<DefaultSecurityFilterChain, HttpSecurity>> C getOrApply(C configurer)
+            throws Exception {
+        C existingConfig = (C) getConfigurer(configurer.getClass());
+        if (existingConfig != null) {
+            return existingConfig;
+        }
+        return apply(configurer);
+    }
+
     private static final class OrderedFilter implements Ordered, Filter {
 
         private final Filter filter;
