@@ -5,33 +5,35 @@ import nextstep.oauth2.authentication.OAuth2LoginAuthenticationProvider;
 import nextstep.oauth2.registration.ClientRegistration;
 import nextstep.oauth2.registration.ClientRegistrationRepository;
 import nextstep.oauth2.userinfo.OAuth2UserService;
-import nextstep.oauth2.web.OAuth2AuthorizationRequestRedirectFilter;
-import nextstep.oauth2.web.OAuth2AuthorizedClientRepository;
-import nextstep.oauth2.web.OAuth2LoginAuthenticationFilter;
 import nextstep.security.access.AnyRequestMatcher;
 import nextstep.security.access.MvcRequestMatcher;
 import nextstep.security.access.RequestMatcherEntry;
 import nextstep.security.access.hierarchicalroles.RoleHierarchy;
 import nextstep.security.access.hierarchicalroles.RoleHierarchyImpl;
-import nextstep.security.authentication.*;
-import nextstep.security.authorization.*;
-import nextstep.security.config.DefaultSecurityFilterChain;
+import nextstep.security.authentication.AuthenticationManager;
+import nextstep.security.authentication.DaoAuthenticationProvider;
+import nextstep.security.authentication.ProviderManager;
+import nextstep.security.authorization.AuthorityAuthorizationManager;
+import nextstep.security.authorization.AuthorizationManager;
+import nextstep.security.authorization.PermitAllAuthorizationManager;
+import nextstep.security.authorization.RequestMatcherDelegatingAuthorizationManager;
+import nextstep.security.authorization.SecuredMethodInterceptor;
 import nextstep.security.config.DelegatingFilterProxy;
 import nextstep.security.config.FilterChainProxy;
 import nextstep.security.config.SecurityFilterChain;
-import nextstep.security.context.SecurityContextHolderFilter;
 import nextstep.security.userdetails.UserDetailsService;
 import nextstep.security.web.annotation.EnableWebSecurity;
-import nextstep.security.web.annotation.HttpSecurityConfiguration;
 import nextstep.security.web.builders.HttpSecurity;
-import nextstep.security.web.csrf.CsrfFilter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpMethod;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -67,8 +69,8 @@ public class SecurityConfig {
     @Bean
     public RoleHierarchy roleHierarchy() {
         return RoleHierarchyImpl.with()
-                .role("ADMIN").implies("USER")
-                .build();
+                                .role("ADMIN").implies("USER")
+                                .build();
     }
 
     @Bean
@@ -81,6 +83,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         return http
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/login"))
                 .build();
     }
 
@@ -117,7 +121,7 @@ public class SecurityConfig {
     private static Map<String, ClientRegistration> getClientRegistrations(OAuth2ClientProperties properties) {
         Map<String, ClientRegistration> clientRegistrations = new HashMap<>();
         properties.getRegistration().forEach((key, value) -> clientRegistrations.put(key,
-                getClientRegistration(key, value, properties.getProvider().get(key))));
+                                                                                     getClientRegistration(key, value, properties.getProvider().get(key))));
         return clientRegistrations;
     }
 

@@ -66,8 +66,7 @@ public class HttpSecurity {
     }
 
     private <C extends SecurityConfigurer> void add(C configurer) {
-        Class<? extends SecurityConfigurer> clazz = (Class<? extends SecurityConfigurer>) configurer
-                .getClass();
+        Class<? extends SecurityConfigurer> clazz = configurer.getClass();
         List<SecurityConfigurer> configs = new ArrayList<>(1);
         configs.add(configurer);
         this.configurers.put(clazz, configs);
@@ -99,6 +98,13 @@ public class HttpSecurity {
     public HttpSecurity csrf(Customizer<CsrfConfigurer> csrfCustomizer) {
         csrfCustomizer.customize(getOrApply(new CsrfConfigurer()));
         return HttpSecurity.this;
+    }
+
+    public HttpSecurity addFilter(Filter filter) {
+//        Integer order = this.filterOrders.getOrder(filter.getClass());
+        // TODO: order
+        this.filters.add(new OrderedFilter(filter, 1));
+        return this;
     }
 
     private static final class OrderedFilter implements Ordered, Filter {

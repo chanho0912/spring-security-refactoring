@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import nextstep.security.access.MvcRequestMatcher;
 import nextstep.security.access.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,13 +16,13 @@ import java.util.Set;
 public class CsrfFilter extends OncePerRequestFilter {
     public static final RequestMatcher DEFAULT_CSRF_MATCHER = new DefaultRequiresCsrfMatcher();
 
-    private final RequestMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
+    private RequestMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
     private final AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandler();
     private CsrfTokenRepository tokenRepository = new CsrfTokenRepository();
 
-    private final Set<MvcRequestMatcher> ignoringRequestMatchers;
+    private final Set<RequestMatcher> ignoringRequestMatchers;
 
-    public CsrfFilter(Set<MvcRequestMatcher> ignoringRequestMatchers) {
+    public CsrfFilter(Set<RequestMatcher> ignoringRequestMatchers) {
         this.ignoringRequestMatchers = ignoringRequestMatchers;
     }
 
@@ -54,6 +53,10 @@ public class CsrfFilter extends OncePerRequestFilter {
             return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    public void setRequireCsrfProtectionMatcher(RequestMatcher requireCsrfProtectionMatcher) {
+        this.requireCsrfProtectionMatcher = requireCsrfProtectionMatcher;
     }
 
     private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
