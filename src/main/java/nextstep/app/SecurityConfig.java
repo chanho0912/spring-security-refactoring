@@ -21,6 +21,9 @@ import nextstep.security.config.FilterChainProxy;
 import nextstep.security.config.SecurityFilterChain;
 import nextstep.security.context.SecurityContextHolderFilter;
 import nextstep.security.userdetails.UserDetailsService;
+import nextstep.security.web.annotation.EnableWebSecurity;
+import nextstep.security.web.annotation.HttpSecurityConfiguration;
+import nextstep.security.web.builders.HttpSecurity;
 import nextstep.security.web.csrf.CsrfFilter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -30,8 +33,8 @@ import org.springframework.http.HttpMethod;
 
 import java.util.*;
 
-
 @Configuration
+@EnableWebSecurity
 @EnableAspectJAutoProxy
 @EnableConfigurationProperties(OAuth2ClientProperties.class)
 public class SecurityConfig {
@@ -47,8 +50,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public DelegatingFilterProxy delegatingFilterProxy() {
-        return new DelegatingFilterProxy(filterChainProxy(List.of(securityFilterChain())));
+    public DelegatingFilterProxy delegatingFilterProxy(HttpSecurity http) {
+        return new DelegatingFilterProxy(filterChainProxy(List.of(securityFilterChain(http))));
     }
 
     @Bean
@@ -76,19 +79,25 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain() {
-        return new DefaultSecurityFilterChain(
-                List.of(
-                        new CsrfFilter(Set.of(new MvcRequestMatcher(HttpMethod.POST, "/login"))),
-                        new SecurityContextHolderFilter(),
-                        new UsernamePasswordAuthenticationFilter(authenticationManager()),
-                        new BasicAuthenticationFilter(authenticationManager()),
-                        new OAuth2AuthorizationRequestRedirectFilter(clientRegistrationRepository()),
-                        new OAuth2LoginAuthenticationFilter(clientRegistrationRepository(), new OAuth2AuthorizedClientRepository(), authenticationManager()),
-                        new AuthorizationFilter(requestAuthorizationManager())
-                )
-        );
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        return http
+                .build();
     }
+
+//    @Bean
+//    public SecurityFilterChain securityFilterChain() {
+//        return new DefaultSecurityFilterChain(
+//                List.of(
+//                        new CsrfFilter(Set.of(new MvcRequestMatcher(HttpMethod.POST, "/login"))),
+//                        new SecurityContextHolderFilter(),
+//                        new UsernamePasswordAuthenticationFilter(authenticationManager()),
+//                        new BasicAuthenticationFilter(authenticationManager()),
+//                        new OAuth2AuthorizationRequestRedirectFilter(clientRegistrationRepository()),
+//                        new OAuth2LoginAuthenticationFilter(clientRegistrationRepository(), new OAuth2AuthorizedClientRepository(), authenticationManager()),
+//                        new AuthorizationFilter(requestAuthorizationManager())
+//                )
+//        );
+//    }
 
     @Bean
     public RequestMatcherDelegatingAuthorizationManager requestAuthorizationManager() {
