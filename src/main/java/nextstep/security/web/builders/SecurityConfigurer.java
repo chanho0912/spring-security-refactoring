@@ -1,8 +1,8 @@
 package nextstep.security.web.builders;
 
-public interface SecurityConfigurer<T, E extends SecurityBuilder<T>> {
+public interface SecurityConfigurer {
 
-    void init(E builder);
+    void init(HttpSecurity http);
 
-    void configure(E builder);
+    void configure(HttpSecurity http);
 }
