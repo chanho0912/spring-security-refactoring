@@ -1,4 +1,4 @@
-package nextstep.security.web.annotation;
+package nextstep.security.autoconfigure;
 
 import nextstep.app.AuthenticationConfiguration;
 import nextstep.oauth2.registration.ClientRegistrationRepository;
@@ -8,7 +8,9 @@ import nextstep.security.web.builders.HttpSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(
+        proxyBeanMethods = false
+)
 public class HttpSecurityConfiguration {
 
     private final AuthenticationConfiguration authenticationConfiguration;

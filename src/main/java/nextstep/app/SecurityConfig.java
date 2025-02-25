@@ -10,8 +10,6 @@ import nextstep.security.access.hierarchicalroles.RoleHierarchyImpl;
 import nextstep.security.authorization.AuthorityAuthorizationManager;
 import nextstep.security.authorization.PermitAllAuthorizationManager;
 import nextstep.security.authorization.SecuredMethodInterceptor;
-import nextstep.security.config.DelegatingFilterProxy;
-import nextstep.security.config.FilterChainProxy;
 import nextstep.security.config.SecurityFilterChain;
 import nextstep.security.web.annotation.EnableWebSecurity;
 import nextstep.security.web.builders.Customizer;
@@ -23,7 +21,6 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpMethod;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -36,16 +33,6 @@ public class SecurityConfig {
 
     public SecurityConfig(OAuth2ClientProperties oAuth2ClientProperties) {
         this.oAuth2ClientProperties = oAuth2ClientProperties;
-    }
-
-    @Bean
-    public DelegatingFilterProxy delegatingFilterProxy(HttpSecurity http) {
-        return new DelegatingFilterProxy(filterChainProxy(List.of(securityFilterChain(http))));
-    }
-
-    @Bean
-    public FilterChainProxy filterChainProxy(List<SecurityFilterChain> securityFilterChains) {
-        return new FilterChainProxy(securityFilterChains);
     }
 
     @Bean
@@ -72,13 +59,13 @@ public class SecurityConfig {
                                                authorizeHttpRequests
                                                        .requestsMatcher(
                                                                new MvcRequestMatcher(HttpMethod.GET, "/members"),
-                                                               new AuthorityAuthorizationManager(roleHierarchy(), "ADMIN"))
+                                                               new AuthorityAuthorizationManager<>(roleHierarchy(), "ADMIN"))
                                                        .requestsMatcher(
                                                                new MvcRequestMatcher(HttpMethod.GET, "/members/me"),
-                                                               new AuthorityAuthorizationManager(roleHierarchy(), "USER"))
+                                                               new AuthorityAuthorizationManager<>(roleHierarchy(), "USER"))
                                                        .requestsMatcher(
                                                                AnyRequestMatcher.INSTANCE,
-                                                               new PermitAllAuthorizationManager()))
+                                                               new PermitAllAuthorizationManager<>()))
                 .build();
     }
 
