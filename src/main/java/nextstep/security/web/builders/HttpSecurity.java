@@ -34,15 +34,6 @@ public class HttpSecurity {
         this.authenticationManager = authenticationManager;
     }
 
-    @SuppressWarnings("unchecked")
-    private <C extends SecurityConfigurer> C getOrApply(C configurer) {
-        C existingConfig = (C) getConfigurer(configurer.getClass());
-        if (existingConfig != null) {
-            return existingConfig;
-        }
-        return apply(configurer);
-    }
-
     private AuthenticationManager authenticationManager() {
         AuthenticationManager authenticationManager = getSharedObject(AuthenticationManager.class);
         if (authenticationManager == null) {
@@ -56,11 +47,6 @@ public class HttpSecurity {
         return this.authenticationManager;
     }
 
-    private void beforeConfigure() {
-        AuthenticationManager authenticationManager = authenticationManager();
-        setSharedObject(AuthenticationManager.class, authenticationManager);
-    }
-
     public SecurityFilterChain build() {
         synchronized (this.configurers) {
             init();
@@ -70,7 +56,7 @@ public class HttpSecurity {
         }
     }
 
-    public DefaultSecurityFilterChain performBuild() {
+    private DefaultSecurityFilterChain performBuild() {
         List<Filter> sorted = new ArrayList<>();
         for (OrderedFilter filter : this.filters) {
             sorted.add(filter.filter);
@@ -79,7 +65,16 @@ public class HttpSecurity {
     }
 
     @SuppressWarnings("unchecked")
-    public <C extends SecurityConfigurer> C getConfigurer(Class<C> clazz) {
+    private <C extends SecurityConfigurer> C getOrApply(C configurer) {
+        C existingConfig = (C) getConfigurer(configurer.getClass());
+        if (existingConfig != null) {
+            return existingConfig;
+        }
+        return apply(configurer);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <C extends SecurityConfigurer> C getConfigurer(Class<C> clazz) {
         List<SecurityConfigurer> configs = this.configurers.get(clazz);
         if (configs == null) {
             return null;
@@ -89,7 +84,7 @@ public class HttpSecurity {
         return (C) configs.get(0);
     }
 
-    public <C extends SecurityConfigurer> C apply(C configurer) {
+    private <C extends SecurityConfigurer> C apply(C configurer) {
         add(configurer);
         return configurer;
     }
@@ -106,6 +101,11 @@ public class HttpSecurity {
         for (SecurityConfigurer configurer : configurers) {
             configurer.init(this);
         }
+    }
+
+    private void beforeConfigure() {
+        AuthenticationManager authenticationManager = authenticationManager();
+        setSharedObject(AuthenticationManager.class, authenticationManager);
     }
 
     private void configure() {
