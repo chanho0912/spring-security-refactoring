@@ -5,13 +5,10 @@ import nextstep.oauth2.registration.ClientRegistration;
 import nextstep.oauth2.registration.ClientRegistrationRepository;
 import nextstep.security.access.AnyRequestMatcher;
 import nextstep.security.access.MvcRequestMatcher;
-import nextstep.security.access.RequestMatcherEntry;
 import nextstep.security.access.hierarchicalroles.RoleHierarchy;
 import nextstep.security.access.hierarchicalroles.RoleHierarchyImpl;
 import nextstep.security.authorization.AuthorityAuthorizationManager;
-import nextstep.security.authorization.AuthorizationManager;
 import nextstep.security.authorization.PermitAllAuthorizationManager;
-import nextstep.security.authorization.RequestMatcherDelegatingAuthorizationManager;
 import nextstep.security.authorization.SecuredMethodInterceptor;
 import nextstep.security.config.DelegatingFilterProxy;
 import nextstep.security.config.FilterChainProxy;
@@ -25,7 +22,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpMethod;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,30 +80,6 @@ public class SecurityConfig {
                                                                AnyRequestMatcher.INSTANCE,
                                                                new PermitAllAuthorizationManager()))
                 .build();
-    }
-
-//    @Bean
-//    public SecurityFilterChain securityFilterChain() {
-//        return new DefaultSecurityFilterChain(
-//                List.of(
-//                        new CsrfFilter(Set.of(new MvcRequestMatcher(HttpMethod.POST, "/login"))),
-//                        new SecurityContextHolderFilter(),
-//                        new UsernamePasswordAuthenticationFilter(authenticationManager()),
-//                        new BasicAuthenticationFilter(authenticationManager()),
-//                        new OAuth2AuthorizationRequestRedirectFilter(clientRegistrationRepository()),
-//                        new OAuth2LoginAuthenticationFilter(clientRegistrationRepository(), new OAuth2AuthorizedClientRepository(), authenticationManager()),
-//                        new AuthorizationFilter(requestAuthorizationManager())
-//                )
-//        );
-//    }
-
-    @Bean
-    public RequestMatcherDelegatingAuthorizationManager requestAuthorizationManager() {
-        List<RequestMatcherEntry<AuthorizationManager>> mappings = new ArrayList<>();
-        mappings.add(new RequestMatcherEntry<>(new MvcRequestMatcher(HttpMethod.GET, "/members"), new AuthorityAuthorizationManager(roleHierarchy(), "ADMIN")));
-        mappings.add(new RequestMatcherEntry<>(new MvcRequestMatcher(HttpMethod.GET, "/members/me"), new AuthorityAuthorizationManager(roleHierarchy(), "USER")));
-        mappings.add(new RequestMatcherEntry<>(AnyRequestMatcher.INSTANCE, new PermitAllAuthorizationManager<Void>()));
-        return new RequestMatcherDelegatingAuthorizationManager(mappings);
     }
 
     @Bean

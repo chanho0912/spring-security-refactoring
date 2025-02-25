@@ -10,12 +10,13 @@ import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
 import nextstep.security.web.builders.configurers.AuthorizeHttpRequestsConfigurer;
-import nextstep.security.web.builders.configurers.HttpBasicConfigurer;
 import nextstep.security.web.builders.configurers.CsrfConfigurer;
 import nextstep.security.web.builders.configurers.FormLoginConfigurer;
+import nextstep.security.web.builders.configurers.HttpBasicConfigurer;
 import nextstep.security.web.builders.configurers.Oauth2LoginConfigurer;
 import nextstep.security.web.builders.configurers.SecurityConfigurer;
 import nextstep.security.web.builders.configurers.SecurityContextConfigurer;
+import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
@@ -33,6 +34,7 @@ public class HttpSecurity {
             new LinkedHashMap<>();
     private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
     private List<OrderedFilter> filters = new ArrayList<>();
+    private final FilterOrderRegistration filterOrderRegistration;
 
     private final AuthenticationManager authenticationManager;
     private final ClientRegistrationRepository clientRegistrationRepository;
@@ -42,6 +44,7 @@ public class HttpSecurity {
 
         this.authenticationManager = authenticationManager;
         this.clientRegistrationRepository = clientRegistrationRepository;
+        this.filterOrderRegistration = new FilterOrderRegistration();
     }
 
     private ClientRegistrationRepository clientRegistrationRepository() {
@@ -77,7 +80,9 @@ public class HttpSecurity {
     }
 
     private DefaultSecurityFilterChain performBuild() {
-        List<Filter> sorted = new ArrayList<>();
+        this.filters.sort(OrderComparator.INSTANCE);
+        List<Filter> sorted = new ArrayList<>(this.filters.size());
+
         for (OrderedFilter filter : this.filters) {
             sorted.add(filter.filter);
         }
@@ -182,11 +187,9 @@ public class HttpSecurity {
         return HttpSecurity.this;
     }
 
-    public HttpSecurity addFilter(Filter filter) {
-//        Integer order = this.filterOrders.getOrder(filter.getClass());
-        // TODO: order
-        this.filters.add(new OrderedFilter(filter, 1));
-        return this;
+    public void addFilter(Filter filter) {
+        Integer order = this.filterOrderRegistration.getOrder(filter.getClass());
+        this.filters.add(new OrderedFilter(filter, order));
     }
 
     @SuppressWarnings("unchecked")

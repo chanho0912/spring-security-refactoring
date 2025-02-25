@@ -1,7 +1,6 @@
 package nextstep.security.web.annotation;
 
 import nextstep.app.AuthenticationConfiguration;
-import nextstep.oauth2.registration.ClientRegistration;
 import nextstep.oauth2.registration.ClientRegistrationRepository;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.web.builders.Customizer;
