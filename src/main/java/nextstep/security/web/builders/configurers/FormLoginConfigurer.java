@@ -5,7 +5,6 @@ import nextstep.security.access.RequestMatcher;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.authentication.UsernamePasswordAuthenticationFilter;
 import nextstep.security.web.builders.HttpSecurity;
-import nextstep.security.web.builders.SecurityConfigurer;
 import org.springframework.http.HttpMethod;
 
 public class FormLoginConfigurer implements SecurityConfigurer {

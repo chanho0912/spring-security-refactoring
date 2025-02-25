@@ -3,7 +3,6 @@ package nextstep.security.web.builders.configurers;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.authentication.BasicAuthenticationFilter;
 import nextstep.security.web.builders.HttpSecurity;
-import nextstep.security.web.builders.SecurityConfigurer;
 
 public class HttpBasicConfigurer implements SecurityConfigurer {
 

@@ -6,7 +6,6 @@ import nextstep.security.access.NegatedRequestMatcher;
 import nextstep.security.access.OrRequestMatcher;
 import nextstep.security.access.RequestMatcher;
 import nextstep.security.web.builders.HttpSecurity;
-import nextstep.security.web.builders.SecurityConfigurer;
 import nextstep.security.web.csrf.CsrfFilter;
 
 import java.util.HashSet;

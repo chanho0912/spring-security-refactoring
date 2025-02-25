@@ -71,6 +71,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/login"))
                 .formLogin(formLogin -> formLogin.loginPage("/login").permitAll())
                 .httpBasic(Customizer.withDefaults())
+                .oauth2Login(Customizer.withDefaults())
                 .authorizeHttpRequests(authorizeHttpRequests ->
                                                authorizeHttpRequests
                                                        .requestsMatcher(

@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import nextstep.oauth2.registration.ClientRegistrationRepository;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
@@ -12,6 +13,8 @@ import nextstep.security.web.builders.configurers.AuthorizeHttpRequestsConfigure
 import nextstep.security.web.builders.configurers.HttpBasicConfigurer;
 import nextstep.security.web.builders.configurers.CsrfConfigurer;
 import nextstep.security.web.builders.configurers.FormLoginConfigurer;
+import nextstep.security.web.builders.configurers.Oauth2LoginConfigurer;
+import nextstep.security.web.builders.configurers.SecurityConfigurer;
 import nextstep.security.web.builders.configurers.SecurityContextConfigurer;
 import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
@@ -32,9 +35,23 @@ public class HttpSecurity {
     private List<OrderedFilter> filters = new ArrayList<>();
 
     private final AuthenticationManager authenticationManager;
+    private final ClientRegistrationRepository clientRegistrationRepository;
 
-    public HttpSecurity(AuthenticationManager authenticationManager) {
+    public HttpSecurity(AuthenticationManager authenticationManager,
+                        ClientRegistrationRepository clientRegistrationRepository) {
+
         this.authenticationManager = authenticationManager;
+        this.clientRegistrationRepository = clientRegistrationRepository;
+    }
+
+    private ClientRegistrationRepository clientRegistrationRepository() {
+        ClientRegistrationRepository clientRegistrationRepository = getSharedObject(ClientRegistrationRepository.class);
+        if (clientRegistrationRepository == null) {
+            clientRegistrationRepository = this.clientRegistrationRepository;
+            setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
+        }
+
+        return clientRegistrationRepository;
     }
 
     private AuthenticationManager authenticationManager() {
@@ -108,7 +125,10 @@ public class HttpSecurity {
 
     private void beforeConfigure() {
         AuthenticationManager authenticationManager = authenticationManager();
+        ClientRegistrationRepository clientRegistrationRepository = clientRegistrationRepository();
+
         setSharedObject(AuthenticationManager.class, authenticationManager);
+        setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
     }
 
     private void configure() {
@@ -141,6 +161,12 @@ public class HttpSecurity {
     // http basic
     public HttpSecurity httpBasic(Customizer<HttpBasicConfigurer> httpBasicCustomizer) {
         httpBasicCustomizer.customize(getOrApply(new HttpBasicConfigurer()));
+        return HttpSecurity.this;
+    }
+
+    // oauth2 login
+    public HttpSecurity oauth2Login(Customizer<Oauth2LoginConfigurer> oauth2LoginCustomizer) {
+        oauth2LoginCustomizer.customize(getOrApply(new Oauth2LoginConfigurer()));
         return HttpSecurity.this;
     }
 
