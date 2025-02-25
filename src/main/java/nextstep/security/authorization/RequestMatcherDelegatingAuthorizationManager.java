@@ -7,19 +7,19 @@ import nextstep.security.authentication.Authentication;
 
 import java.util.List;
 
-public class RequestMatcherDelegatingAuthorizationManager implements AuthorizationManager<HttpServletRequest> {
-    private final List<RequestMatcherEntry<AuthorizationManager>> mappings;
+public class RequestMatcherDelegatingAuthorizationManager<T> implements AuthorizationManager<HttpServletRequest> {
+    private final List<RequestMatcherEntry<AuthorizationManager<HttpServletRequest>>> mappings;
 
-    public RequestMatcherDelegatingAuthorizationManager(List<RequestMatcherEntry<AuthorizationManager>> mappings) {
+    public RequestMatcherDelegatingAuthorizationManager(List<RequestMatcherEntry<AuthorizationManager<HttpServletRequest>>> mappings) {
         this.mappings = mappings;
     }
 
     @Override
     public AuthorizationDecision check(Authentication authentication, HttpServletRequest request) {
-        for (RequestMatcherEntry<AuthorizationManager> mapping : mappings) {
+        for (RequestMatcherEntry<AuthorizationManager<HttpServletRequest>> mapping : mappings) {
             RequestMatcher matcher = mapping.getRequestMatcher();
             if (matcher.matches(request)) {
-                AuthorizationManager manager = mapping.getEntry();
+                AuthorizationManager<HttpServletRequest> manager = mapping.getEntry();
 
                 return manager.check(authentication, request);
             }

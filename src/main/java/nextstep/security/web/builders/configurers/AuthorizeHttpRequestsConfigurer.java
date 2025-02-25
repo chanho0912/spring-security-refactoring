@@ -1,5 +1,6 @@
 package nextstep.security.web.builders.configurers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import nextstep.security.access.RequestMatcher;
 import nextstep.security.access.RequestMatcherEntry;
 import nextstep.security.authorization.AuthorizationFilter;
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class AuthorizeHttpRequestsConfigurer implements SecurityConfigurer {
 
-    private List<RequestMatcherEntry<AuthorizationManager>> mappings;
+    private final List<RequestMatcherEntry<AuthorizationManager<HttpServletRequest>>> mappings;
 
     public AuthorizeHttpRequestsConfigurer() {
         this.mappings = new ArrayList<>();
@@ -24,14 +25,16 @@ public class AuthorizeHttpRequestsConfigurer implements SecurityConfigurer {
 
     @Override
     public void configure(HttpSecurity http) {
-        RequestMatcherDelegatingAuthorizationManager requestMatcherDelegatingAuthorizationManager =
-                new RequestMatcherDelegatingAuthorizationManager(this.mappings);
+        RequestMatcherDelegatingAuthorizationManager<HttpServletRequest> requestMatcherDelegatingAuthorizationManager =
+                new RequestMatcherDelegatingAuthorizationManager<>(this.mappings);
 
         AuthorizationFilter authorizationFilter = new AuthorizationFilter(requestMatcherDelegatingAuthorizationManager);
         http.addFilter(authorizationFilter);
     }
 
-    public AuthorizeHttpRequestsConfigurer requestsMatcher(RequestMatcher requestMatcher, AuthorizationManager manager) {
+    public AuthorizeHttpRequestsConfigurer requestsMatcher(RequestMatcher requestMatcher,
+                                                           AuthorizationManager<HttpServletRequest> manager) {
+
         this.mappings.add(new RequestMatcherEntry<>(requestMatcher, manager));
         return this;
     }

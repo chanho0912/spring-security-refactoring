@@ -13,8 +13,8 @@ import java.util.Set;
 
 public class CsrfConfigurer implements SecurityConfigurer {
 
-    private RequestMatcher requireCsrfProtectionMatcher;
-    private Set<RequestMatcher> ignoredCsrfProtectionMatchers;
+    private final RequestMatcher requireCsrfProtectionMatcher;
+    private final Set<RequestMatcher> ignoredCsrfProtectionMatchers;
 
     public CsrfConfigurer() {
         this.requireCsrfProtectionMatcher = CsrfFilter.DEFAULT_CSRF_MATCHER;

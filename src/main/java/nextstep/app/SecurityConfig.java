@@ -65,7 +65,7 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/login"))
-                .formLogin(formLogin -> formLogin.loginPage("/login").permitAll())
+                .formLogin(formLogin -> formLogin.loginPage("/login"))
                 .httpBasic(Customizer.withDefaults())
                 .oauth2Login(Customizer.withDefaults())
                 .authorizeHttpRequests(authorizeHttpRequests ->
