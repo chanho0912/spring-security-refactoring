@@ -11,7 +11,6 @@ import org.springframework.http.HttpMethod;
 public class FormLoginConfigurer implements SecurityConfigurer {
     private static final MvcRequestMatcher DEFAULT_MVC_REQUEST_MATCHER = new MvcRequestMatcher(HttpMethod.POST, "/login");
 
-    private UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter;
     private boolean permitAll;
     private RequestMatcher loginRequestMatcher;
 
@@ -27,8 +26,8 @@ public class FormLoginConfigurer implements SecurityConfigurer {
     @Override
     public void configure(HttpSecurity http) {
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-        this.usernamePasswordAuthenticationFilter = new UsernamePasswordAuthenticationFilter(authenticationManager);
-        http.addFilter(this.usernamePasswordAuthenticationFilter);
+        UsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter = new UsernamePasswordAuthenticationFilter(authenticationManager);
+        http.addFilter(usernamePasswordAuthenticationFilter);
     }
 
     public FormLoginConfigurer loginPage(String loginPage) {

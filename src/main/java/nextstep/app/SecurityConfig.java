@@ -17,6 +17,7 @@ import nextstep.security.config.DelegatingFilterProxy;
 import nextstep.security.config.FilterChainProxy;
 import nextstep.security.config.SecurityFilterChain;
 import nextstep.security.web.annotation.EnableWebSecurity;
+import nextstep.security.web.builders.Customizer;
 import nextstep.security.web.builders.HttpSecurity;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -69,7 +70,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/login"))
                 .formLogin(formLogin -> formLogin.loginPage("/login").permitAll())
-//                .httpBasic(Customizer.withDefaults());  // HTTP Basic 인증 설정
+                .httpBasic(Customizer.withDefaults())
                 .build();
     }
 

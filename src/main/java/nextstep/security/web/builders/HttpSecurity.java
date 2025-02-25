@@ -8,8 +8,10 @@ import jakarta.servlet.ServletResponse;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
+import nextstep.security.web.builders.basic.HttpBasicConfigurer;
 import nextstep.security.web.builders.csrf.CsrfConfigurer;
 import nextstep.security.web.builders.formlogin.FormLoginConfigurer;
+import nextstep.security.web.builders.securitycontext.SecurityContextConfigurer;
 import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
@@ -132,6 +134,18 @@ public class HttpSecurity {
     // form login
     public HttpSecurity formLogin(Customizer<FormLoginConfigurer> formLoginCustomizer) {
         formLoginCustomizer.customize(getOrApply(new FormLoginConfigurer()));
+        return HttpSecurity.this;
+    }
+
+    // http basic
+    public HttpSecurity httpBasic(Customizer<HttpBasicConfigurer> httpBasicCustomizer) {
+        httpBasicCustomizer.customize(getOrApply(new HttpBasicConfigurer()));
+        return HttpSecurity.this;
+    }
+
+    // security context
+    public HttpSecurity securityContext(Customizer<SecurityContextConfigurer> securityContextCustomizer) {
+        securityContextCustomizer.customize(getOrApply(new SecurityContextConfigurer()));
         return HttpSecurity.this;
     }
 
