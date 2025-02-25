@@ -8,6 +8,7 @@ import jakarta.servlet.ServletResponse;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
+import nextstep.security.web.builders.configurers.AuthorizeHttpRequestsConfigurer;
 import nextstep.security.web.builders.configurers.HttpBasicConfigurer;
 import nextstep.security.web.builders.configurers.CsrfConfigurer;
 import nextstep.security.web.builders.configurers.FormLoginConfigurer;
@@ -146,6 +147,12 @@ public class HttpSecurity {
     // security context
     public HttpSecurity securityContext(Customizer<SecurityContextConfigurer> securityContextCustomizer) {
         securityContextCustomizer.customize(getOrApply(new SecurityContextConfigurer()));
+        return HttpSecurity.this;
+    }
+
+    // authorizeHttpRequests
+    public HttpSecurity authorizeHttpRequests(Customizer<AuthorizeHttpRequestsConfigurer> authorizeHttpRequestsCustomizer) {
+        authorizeHttpRequestsCustomizer.customize(getOrApply(new AuthorizeHttpRequestsConfigurer()));
         return HttpSecurity.this;
     }
 

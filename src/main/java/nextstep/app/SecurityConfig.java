@@ -71,6 +71,17 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/login"))
                 .formLogin(formLogin -> formLogin.loginPage("/login").permitAll())
                 .httpBasic(Customizer.withDefaults())
+                .authorizeHttpRequests(authorizeHttpRequests ->
+                                               authorizeHttpRequests
+                                                       .requestsMatcher(
+                                                               new MvcRequestMatcher(HttpMethod.GET, "/members"),
+                                                               new AuthorityAuthorizationManager(roleHierarchy(), "ADMIN"))
+                                                       .requestsMatcher(
+                                                               new MvcRequestMatcher(HttpMethod.GET, "/members/me"),
+                                                               new AuthorityAuthorizationManager(roleHierarchy(), "USER"))
+                                                       .requestsMatcher(
+                                                               AnyRequestMatcher.INSTANCE,
+                                                               new PermitAllAuthorizationManager()))
                 .build();
     }
 

@@ -39,6 +39,10 @@ public class AuthorityAuthorizationManager<T> implements AuthorizationManager<T>
         return false;
     }
 
+    public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
+        this.roleHierarchy = roleHierarchy;
+    }
+
     private Collection<String> getGrantedAuthorities(Authentication authentication) {
         return this.roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
     }
