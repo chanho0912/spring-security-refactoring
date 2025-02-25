@@ -1,18 +1,13 @@
 package nextstep.app;
 
 import nextstep.oauth2.OAuth2ClientProperties;
-import nextstep.oauth2.authentication.OAuth2LoginAuthenticationProvider;
 import nextstep.oauth2.registration.ClientRegistration;
 import nextstep.oauth2.registration.ClientRegistrationRepository;
-import nextstep.oauth2.userinfo.OAuth2UserService;
 import nextstep.security.access.AnyRequestMatcher;
 import nextstep.security.access.MvcRequestMatcher;
 import nextstep.security.access.RequestMatcherEntry;
 import nextstep.security.access.hierarchicalroles.RoleHierarchy;
 import nextstep.security.access.hierarchicalroles.RoleHierarchyImpl;
-import nextstep.security.authentication.AuthenticationManager;
-import nextstep.security.authentication.DaoAuthenticationProvider;
-import nextstep.security.authentication.ProviderManager;
 import nextstep.security.authorization.AuthorityAuthorizationManager;
 import nextstep.security.authorization.AuthorizationManager;
 import nextstep.security.authorization.PermitAllAuthorizationManager;
@@ -21,7 +16,6 @@ import nextstep.security.authorization.SecuredMethodInterceptor;
 import nextstep.security.config.DelegatingFilterProxy;
 import nextstep.security.config.FilterChainProxy;
 import nextstep.security.config.SecurityFilterChain;
-import nextstep.security.userdetails.UserDetailsService;
 import nextstep.security.web.annotation.EnableWebSecurity;
 import nextstep.security.web.builders.HttpSecurity;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -41,13 +35,9 @@ import java.util.Map;
 @EnableConfigurationProperties(OAuth2ClientProperties.class)
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
-    private final OAuth2UserService oAuth2UserService;
     private final OAuth2ClientProperties oAuth2ClientProperties;
 
-    public SecurityConfig(UserDetailsService userDetailsService, OAuth2UserService oAuth2UserService, OAuth2ClientProperties oAuth2ClientProperties) {
-        this.userDetailsService = userDetailsService;
-        this.oAuth2UserService = oAuth2UserService;
+    public SecurityConfig(OAuth2ClientProperties oAuth2ClientProperties) {
         this.oAuth2ClientProperties = oAuth2ClientProperties;
     }
 
@@ -74,17 +64,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager() {
-        return new ProviderManager(List.of(
-                new DaoAuthenticationProvider(userDetailsService),
-                new OAuth2LoginAuthenticationProvider(oAuth2UserService)));
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         return http
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/login"))
+                .formLogin(formLogin -> formLogin.loginPage("/login").permitAll())
+//                .httpBasic(Customizer.withDefaults());  // HTTP Basic 인증 설정
                 .build();
     }
 

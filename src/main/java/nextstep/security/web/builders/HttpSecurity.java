@@ -5,23 +5,34 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
 import nextstep.security.web.builders.csrf.CsrfConfigurer;
+import nextstep.security.web.builders.formlogin.FormLoginConfigurer;
 import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HttpSecurity {
 
     private final LinkedHashMap<Class<? extends SecurityConfigurer>, List<SecurityConfigurer>> configurers =
             new LinkedHashMap<>();
+    private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
     private List<OrderedFilter> filters = new ArrayList<>();
+
+    private final AuthenticationManager authenticationManager;
+
+    public HttpSecurity(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
 
     @SuppressWarnings("unchecked")
     private <C extends SecurityConfigurer> C getOrApply(C configurer) {
@@ -32,9 +43,28 @@ public class HttpSecurity {
         return apply(configurer);
     }
 
+    private AuthenticationManager authenticationManager() {
+        AuthenticationManager authenticationManager = getSharedObject(AuthenticationManager.class);
+        if (authenticationManager == null) {
+            authenticationManager = getAuthenticationManager();
+            setSharedObject(AuthenticationManager.class, authenticationManager);
+        }
+        return authenticationManager;
+    }
+
+    private AuthenticationManager getAuthenticationManager() {
+        return this.authenticationManager;
+    }
+
+    private void beforeConfigure() {
+        AuthenticationManager authenticationManager = authenticationManager();
+        setSharedObject(AuthenticationManager.class, authenticationManager);
+    }
+
     public SecurityFilterChain build() {
         synchronized (this.configurers) {
             init();
+            beforeConfigure();
             configure();
             return performBuild();
         }
@@ -47,7 +77,6 @@ public class HttpSecurity {
         }
         return new DefaultSecurityFilterChain(sorted);
     }
-
 
     @SuppressWarnings("unchecked")
     public <C extends SecurityConfigurer> C getConfigurer(Class<C> clazz) {
@@ -100,11 +129,26 @@ public class HttpSecurity {
         return HttpSecurity.this;
     }
 
+    // form login
+    public HttpSecurity formLogin(Customizer<FormLoginConfigurer> formLoginCustomizer) {
+        formLoginCustomizer.customize(getOrApply(new FormLoginConfigurer()));
+        return HttpSecurity.this;
+    }
+
     public HttpSecurity addFilter(Filter filter) {
 //        Integer order = this.filterOrders.getOrder(filter.getClass());
         // TODO: order
         this.filters.add(new OrderedFilter(filter, 1));
         return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <C> C getSharedObject(Class<C> sharedType) {
+        return (C) this.sharedObjects.get(sharedType);
+    }
+
+    public <C> void setSharedObject(Class<C> sharedType, C object) {
+        this.sharedObjects.put(sharedType, object);
     }
 
     private static final class OrderedFilter implements Ordered, Filter {
