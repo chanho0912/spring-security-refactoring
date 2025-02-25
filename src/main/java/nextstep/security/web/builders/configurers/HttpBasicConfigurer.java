@@ -1,4 +1,4 @@
-package nextstep.security.web.builders.basic;
+package nextstep.security.web.builders.configurers;
 
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.authentication.BasicAuthenticationFilter;

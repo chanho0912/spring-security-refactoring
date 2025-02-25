@@ -1,4 +1,4 @@
-package nextstep.security.web.builders.formlogin;
+package nextstep.security.web.builders.configurers;
 
 import nextstep.security.access.MvcRequestMatcher;
 import nextstep.security.access.RequestMatcher;

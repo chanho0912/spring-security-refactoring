@@ -1,4 +1,4 @@
-package nextstep.security.web.builders.csrf;
+package nextstep.security.web.builders.configurers;
 
 import nextstep.security.access.AndRequestMatcher;
 import nextstep.security.access.MvcRequestMatcher;

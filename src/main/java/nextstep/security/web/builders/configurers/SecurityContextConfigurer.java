@@ -1,4 +1,4 @@
-package nextstep.security.web.builders.securitycontext;
+package nextstep.security.web.builders.configurers;
 
 import nextstep.security.context.SecurityContextHolderFilter;
 import nextstep.security.web.builders.HttpSecurity;

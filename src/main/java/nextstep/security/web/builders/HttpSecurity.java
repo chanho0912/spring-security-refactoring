@@ -8,10 +8,10 @@ import jakarta.servlet.ServletResponse;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.config.DefaultSecurityFilterChain;
 import nextstep.security.config.SecurityFilterChain;
-import nextstep.security.web.builders.basic.HttpBasicConfigurer;
-import nextstep.security.web.builders.csrf.CsrfConfigurer;
-import nextstep.security.web.builders.formlogin.FormLoginConfigurer;
-import nextstep.security.web.builders.securitycontext.SecurityContextConfigurer;
+import nextstep.security.web.builders.configurers.HttpBasicConfigurer;
+import nextstep.security.web.builders.configurers.CsrfConfigurer;
+import nextstep.security.web.builders.configurers.FormLoginConfigurer;
+import nextstep.security.web.builders.configurers.SecurityContextConfigurer;
 import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
