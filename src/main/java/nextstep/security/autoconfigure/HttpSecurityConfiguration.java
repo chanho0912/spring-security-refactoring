@@ -7,6 +7,7 @@ import nextstep.security.web.builders.Customizer;
 import nextstep.security.web.builders.HttpSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 @Configuration(
         proxyBeanMethods = false
@@ -24,6 +25,7 @@ public class HttpSecurityConfiguration {
     }
 
     @Bean
+    @Scope("prototype")
     public HttpSecurity httpSecurity() {
         AuthenticationManager authenticationManager = authenticationConfiguration.authenticationManager();
         HttpSecurity http = new HttpSecurity(authenticationManager, clientRegistrationRepository);
