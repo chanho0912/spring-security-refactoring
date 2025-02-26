@@ -1,10 +1,11 @@
 package nextstep.security.autoconfigure;
 
 import nextstep.app.AuthenticationConfiguration;
-import nextstep.oauth2.registration.ClientRegistrationRepository;
 import nextstep.security.authentication.AuthenticationManager;
 import nextstep.security.web.builders.Customizer;
 import nextstep.security.web.builders.HttpSecurity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -15,20 +16,22 @@ import org.springframework.context.annotation.Scope;
 public class HttpSecurityConfiguration {
 
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final ClientRegistrationRepository clientRegistrationRepository;
+    private ApplicationContext context;
 
-    public HttpSecurityConfiguration(AuthenticationConfiguration authenticationConfiguration,
-                                     ClientRegistrationRepository clientRegistrationRepository) {
-
+    public HttpSecurityConfiguration(AuthenticationConfiguration authenticationConfiguration) {
         this.authenticationConfiguration = authenticationConfiguration;
-        this.clientRegistrationRepository = clientRegistrationRepository;
+    }
+
+    @Autowired
+    public void setApplicationContext(ApplicationContext context) {
+        this.context = context;
     }
 
     @Bean
     @Scope("prototype")
     public HttpSecurity httpSecurity() {
         AuthenticationManager authenticationManager = authenticationConfiguration.authenticationManager();
-        HttpSecurity http = new HttpSecurity(authenticationManager, clientRegistrationRepository);
+        HttpSecurity http = new HttpSecurity(authenticationManager, context);
 
         return http.securityContext(Customizer.withDefaults());
     }

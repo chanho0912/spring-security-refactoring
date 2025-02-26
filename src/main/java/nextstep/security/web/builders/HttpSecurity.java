@@ -16,6 +16,7 @@ import nextstep.security.web.builders.configurers.HttpBasicConfigurer;
 import nextstep.security.web.builders.configurers.Oauth2LoginConfigurer;
 import nextstep.security.web.builders.configurers.SecurityConfigurer;
 import nextstep.security.web.builders.configurers.SecurityContextConfigurer;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
@@ -35,39 +36,39 @@ public class HttpSecurity {
     private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
     private List<OrderedFilter> filters = new ArrayList<>();
     private final FilterOrderRegistration filterOrderRegistration;
-
     private final AuthenticationManager authenticationManager;
-    private final ClientRegistrationRepository clientRegistrationRepository;
 
     public HttpSecurity(AuthenticationManager authenticationManager,
-                        ClientRegistrationRepository clientRegistrationRepository) {
+                        ApplicationContext context) {
 
         this.authenticationManager = authenticationManager;
-        this.clientRegistrationRepository = clientRegistrationRepository;
+        this.setSharedObject(ApplicationContext.class, context);
         this.filterOrderRegistration = new FilterOrderRegistration();
     }
 
-    private ClientRegistrationRepository clientRegistrationRepository() {
-        ClientRegistrationRepository clientRegistrationRepository = getSharedObject(ClientRegistrationRepository.class);
-        if (clientRegistrationRepository == null) {
-            clientRegistrationRepository = this.clientRegistrationRepository;
-            setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
-        }
-
-        return clientRegistrationRepository;
-    }
-
-    private AuthenticationManager authenticationManager() {
+    private void configureAuthenticationManager() {
         AuthenticationManager authenticationManager = getSharedObject(AuthenticationManager.class);
         if (authenticationManager == null) {
             authenticationManager = getAuthenticationManager();
             setSharedObject(AuthenticationManager.class, authenticationManager);
         }
-        return authenticationManager;
+    }
+
+    private void configureClientRegistrationRepository() {
+        ClientRegistrationRepository clientRegistrationRepository = getSharedObject(ClientRegistrationRepository.class);
+
+        if (clientRegistrationRepository == null) {
+            clientRegistrationRepository = getClientRegistrationRepository();
+            setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
+        }
     }
 
     private AuthenticationManager getAuthenticationManager() {
         return this.authenticationManager;
+    }
+
+    private ClientRegistrationRepository getClientRegistrationRepository() {
+        return getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class);
     }
 
     public SecurityFilterChain build() {
@@ -129,11 +130,8 @@ public class HttpSecurity {
     }
 
     private void beforeConfigure() {
-        AuthenticationManager authenticationManager = authenticationManager();
-        ClientRegistrationRepository clientRegistrationRepository = clientRegistrationRepository();
-
-        setSharedObject(AuthenticationManager.class, authenticationManager);
-        setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
+        configureAuthenticationManager();
+        configureClientRegistrationRepository();
     }
 
     private void configure() {

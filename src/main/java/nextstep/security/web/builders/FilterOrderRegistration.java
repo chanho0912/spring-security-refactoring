@@ -32,7 +32,7 @@ class FilterOrderRegistration {
 
     Integer getOrder(Class<?> clazz) {
         while(clazz != null) {
-            Integer result = (Integer)this.filterToOrder.get(clazz.getName());
+            Integer result = this.filterToOrder.get(clazz.getName());
             if (result != null) {
                 return result;
             }
